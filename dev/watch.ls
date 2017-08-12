@@ -15,18 +15,26 @@ default-options =
     bare: true
     header: false
 
+ls-ast = (code, options = {}) ->
+      ast = livescript.ast code
+      {filename} = options
+      output = ast.compile-root options
+      output.set-file filename
+      result = output.to-string-with-source-map!
+
 compile = (filepath) !->>
     relative-path = path.relative src-path, filepath
-    console.log \compiling relative-path
+    output = path.join lib-path, (relative-path.replace '.ls', '.js')
+    map-file = "#output.map"
     try
         ls-code = await fs.read-file filepath, \utf8
         options =
-            filename: relative-path
+            filename: path.join \../src relative-path
             output-filename: relative-path.replace /.ls$/ '.js'
-        js-result = livescript.compile ls-code, options <<< default-options
+        console.log "compiling #relative-path"
+        js-result = ls-ast ls-code, options <<< default-options
             ..source-map = ..map.to-JSON!
-        output = path.join lib-path, (relative-path.replace '.ls', '.js')
-        map-file = output + \.map
+            ..code += "\n//# sourceMappingURL=#map-file\n"
         fs.output-file output, js-result.code
         fs.output-file map-file, JSON.stringify js-result.map.to-JSON!
     catch
