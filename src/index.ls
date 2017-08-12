@@ -46,3 +46,6 @@ module.exports =
                 split: \right
             preview-view = await atom.workspace.open uri, options
             active-pane.activate!
+
+    consume-provider: (provider) ->
+        console.log \provider provider
