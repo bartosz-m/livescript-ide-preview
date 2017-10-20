@@ -32,6 +32,7 @@ module.exports = PreviewView =
         @set-grammar @grammar if @grammar
         @set-placeholder-text "Source Preview"
         @render!
+        @subscriptions.add @origin.on-did-stop-changing @~render
 
     destroy: ->
         @subscriptions?.dispose!
