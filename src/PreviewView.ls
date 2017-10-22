@@ -1,6 +1,7 @@
 require! {
     \path
     \atom : { TextEditor, CompositeDisposable }
+    \source-map : { SourceMapConsumer }
 }
 
 instances = new WeakSet
@@ -32,7 +33,11 @@ module.exports = PreviewView =
         @set-grammar @grammar if @grammar
         @set-placeholder-text "Source Preview"
         @render!
-        @subscriptions.add @origin.on-did-stop-changing @~render
+        @last-top = @origin.element.get-scroll-top!
+        @subscriptions
+            ..add @origin.on-did-stop-changing @~render
+            ..add @origin.on-did-change-cursor-position @~sync-cursor-position
+            ..add @origin.element.on-did-change-scroll-top @~sync-scroll
 
     destroy: ->
         @subscriptions?.dispose!
@@ -52,6 +57,41 @@ module.exports = PreviewView =
             filePath: @origin.get-path!
         try
             {code, source-map} = await @provider.transform @origin.get-text!, options
+            @source-map = new SourceMapConsumer source-map if source-map
             @set-text code
         catch
-            console.log \error e
+            @set-text e.message
+
+    scroll-to-line: (line) ->
+
+    sync-scroll: (top) !->
+        delta =
+            if top < @last-top
+            then 0
+            else @origin.element.get-height!
+        @last-top = top
+        screen-position = @origin.screen-position-for-pixel-position top:top + delta, left: 0
+        buffer-position = @origin.buffer-position-for-screen-position screen-position
+        preview-line = @get-preview-line-position buffer-position
+        @scroll-to-buffer-position [preview-line, 0]
+
+
+    sync-cursor-position: ->
+        return unless @origin?
+
+        buffer-position = it.new-buffer-position#, @origin.get-cursor-buffer-position!
+        buffer-row = buffer-position.row
+        previewRow = @get-preview-line-position buffer-position
+        return unless previewRow?
+        @set-cursor-buffer-position [previewRow, 0], autoscroll: true
+        @clear-selections!
+        @select-lines-containing-cursors!
+        @origin.element?focus!
+
+    get-preview-line-position: (position) ->
+        return unless @source-map?
+        { line } = transpiled-position = @source-map.generated-position-for do
+            source: @source-map.sources.0
+            line: position.row + 1
+            column: position.column + 1
+        line - 1
