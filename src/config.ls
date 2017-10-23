@@ -1,8 +1,8 @@
 module.exports =
-    debounce-time:
-        type: \integer
-        default: 200
-        minimum: 0
     enable-sync-scroll:
+        title: 'enable sync-scroll'
+        type: 'boolean'
+        default: true
+    enable-sync-cursor:
         type: 'boolean'
         default: true

@@ -5,24 +5,9 @@ require! {
 module.exports =
     providers:  []
 
-    updated-config: ->
-        schema =
-            type: \object
-            properties: {}
-        for provider in @providers
-            provider-schema = schema.properties{}[provider.from-grammar-name]
-                ..type = \string
-                ..default = provider.name
-                ..[]\enum .push do
-                    value: provider.name
-                    description: "#{provider.name} : #{provider.description}"
-        schema
-
     register-provider: (provider) ->
         if provider? and not @is-provider-registered provider
             @providers.push provider
-
-            atom.config.set-schema \atom-livescript-ide-preview.provider, @updated-config!
             disposable = new Disposable ~> @remove-provider provider
 
     remove-provider: (provider) ->
