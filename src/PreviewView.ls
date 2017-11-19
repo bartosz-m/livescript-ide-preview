@@ -32,7 +32,7 @@ module.exports = PreviewView =
 
         @set-grammar @grammar if @grammar
         @set-placeholder-text "Source Preview"
-        @render!
+        @render!then @~sync-cursor-position
         @last-top = @origin.element.get-scroll-top!
         @config =
             enable-sync-scroll: atom.config.get 'livescript-ide-preview.enableSyncScroll'
