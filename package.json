@@ -1,6 +1,6 @@
 {
   "name": "livescript-ide-preview",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "transpiled code preview for LiveScript IDE",
   "main": "lib/index.js",
   "scripts": {
