@@ -32,7 +32,7 @@ module.exports = PreviewView =
 
         @set-grammar @grammar if @grammar
         @set-placeholder-text "Source Preview"
-        @render!then @~sync-cursor-position
+        @refresh!
         @last-top = @origin.element.get-scroll-top!
         @config =
             enable-sync-scroll: atom.config.get 'livescript-ide-preview.enableSyncScroll'
@@ -42,9 +42,13 @@ module.exports = PreviewView =
                 @config.enableSyncScroll = v
             ..add atom.config.observe 'livescript-ide-preview.enableSyncCursor', (v) ~>
                 @config.enableSyncCursor = v
-            ..add @origin.on-did-stop-changing @~render
+            ..add @origin.on-did-stop-changing @~refresh
             ..add @origin.on-did-change-cursor-position @~sync-cursor-position
             ..add @origin.element.on-did-change-scroll-top @~sync-scroll
+    refresh: ->>
+        await @render!
+        @sync-cursor-position new-buffer-position: @origin.get-cursor-buffer-position!
+
 
     destroy: ->
         @subscriptions?.dispose!
@@ -69,6 +73,7 @@ module.exports = PreviewView =
         catch
             text = e.message + "\n" + e.stack
             @set-text text
+        @sync-cursor-position new-buffer-position: @origin.get-cursor-buffer-position!
 
     scroll-to-line: (line) ->
 
