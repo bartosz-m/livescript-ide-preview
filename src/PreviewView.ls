@@ -87,7 +87,7 @@ module.exports = PreviewView =
             then 0
             else @origin.element.get-height!
         @last-top = top
-        screen-position = @origin.screen-position-for-pixel-position top:top + delta, left: 0
+        screen-position = @origin.element.screen-position-for-pixel-position top:top + delta, left: 0
         buffer-position = @origin.buffer-position-for-screen-position screen-position
         preview-line = @get-preview-line-position buffer-position
         @scroll-to-buffer-position [preview-line, 0]
