@@ -13,7 +13,7 @@
   "consumedServices": {
     "livescript-ide.provider": {
       "versions": {
-        "0.0.1": "consumeProvider"
+        "0.0.2": "consumeProvider"
       }
     }
   },

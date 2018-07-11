@@ -69,7 +69,7 @@ module.exports = PreviewView =
             source-map: true
             filePath: @origin.get-path!
         try
-            {code, source-map} = await @provider.transform @origin.get-text!, options
+            {code, source-map} = await @provider.transform {uri:"file://#{@path}",code: @origin.get-text!, options}
             @source-map = new SourceMapConsumer source-map if source-map
             @set-text code
         catch
